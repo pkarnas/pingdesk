@@ -37,7 +37,7 @@ struct MenuPopoverView: View {
             .foregroundStyle(.secondary)
             .padding(.vertical, 8)
         }
-        .frame(width: 320)
+        .frame(width: 400)
         .frame(maxHeight: 400)
     }
 

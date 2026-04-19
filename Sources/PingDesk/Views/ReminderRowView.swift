@@ -18,9 +18,9 @@ struct ReminderRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(reminder.title)
-                    .font(.body)
-                    .foregroundStyle(reminder.isEnabled ? .primary : .secondary)
-                    .lineLimit(1)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(reminder.isEnabled ? .primary : .tertiary)
+                    .lineLimit(2)
 
                 Text(scheduleDescription)
                     .font(.caption)
