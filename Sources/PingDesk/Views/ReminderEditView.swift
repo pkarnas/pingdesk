@@ -42,7 +42,21 @@ struct ReminderEditView: View {
 
             Form {
                 Section {
-                    TextField("Reminder message", text: $title)
+                    TextField("Reminder message", text: $title, axis: .vertical)
+                        .labelsHidden()
+                        .lineLimit(3, reservesSpace: true)
+                        .onChange(of: title) { newValue in
+                            if newValue.count > 100 {
+                                title = String(newValue.prefix(100))
+                            }
+                        }
+                } footer: {
+                    HStack {
+                        Spacer()
+                        Text("\(title.count)/100")
+                            .foregroundStyle(title.count > 90 ? .orange : .secondary)
+                            .font(.caption)
+                    }
                 }
 
                 Section("Schedule") {
@@ -102,7 +116,7 @@ struct ReminderEditView: View {
             }
             .formStyle(.grouped)
         }
-        .frame(width: 360, height: editingReminder != nil ? 480 : 420)
+        .frame(width: 360, height: editingReminder != nil ? 520 : 460)
         .onAppear { loadFromReminder() }
     }
 
