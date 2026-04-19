@@ -2,9 +2,9 @@ import SwiftUI
 
 struct ReminderEditView: View {
     @EnvironmentObject private var store: ReminderStore
-    @Environment(\.dismiss) private var dismiss
 
     let editingReminder: Reminder?
+    let onDismiss: () -> Void
 
     @State private var title: String = ""
     @State private var scheduleType: ScheduleType = .recurring
@@ -20,14 +20,15 @@ struct ReminderEditView: View {
         case oneTime = "One-time"
     }
 
-    init(editingReminder: Reminder? = nil) {
+    init(editingReminder: Reminder? = nil, onDismiss: @escaping () -> Void = {}) {
         self.editingReminder = editingReminder
+        self.onDismiss = onDismiss
     }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button("Cancel") { dismiss() }
+                Button("Cancel") { onDismiss() }
                 Spacer()
                 Text(editingReminder == nil ? "New Reminder" : "Edit Reminder")
                     .font(.headline)
@@ -127,7 +128,7 @@ struct ReminderEditView: View {
             )
             store.add(reminder)
         }
-        dismiss()
+        onDismiss()
     }
 
     private func buildSchedule() -> Schedule {

@@ -2,8 +2,6 @@ import SwiftUI
 
 struct MenuPopoverView: View {
     @EnvironmentObject private var store: ReminderStore
-    @State private var showingAddSheet = false
-    @State private var editingReminder: Reminder? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -12,7 +10,7 @@ struct MenuPopoverView: View {
                     .font(.headline)
                 Spacer()
                 Button {
-                    showingAddSheet = true
+                    EditWindowController.shared.open(store: store)
                 } label: {
                     Image(systemName: "plus")
                         .font(.body.weight(.medium))
@@ -41,14 +39,6 @@ struct MenuPopoverView: View {
         }
         .frame(width: 320)
         .frame(maxHeight: 400)
-        .sheet(isPresented: $showingAddSheet) {
-            ReminderEditView()
-                .environmentObject(store)
-        }
-        .sheet(item: $editingReminder) { reminder in
-            ReminderEditView(editingReminder: reminder)
-                .environmentObject(store)
-        }
     }
 
     private var emptyState: some View {
@@ -74,7 +64,7 @@ struct MenuPopoverView: View {
                     ReminderRowView(
                         reminder: reminder,
                         onToggle: { store.toggleEnabled(reminder) },
-                        onEdit: { editingReminder = reminder }
+                        onEdit: { EditWindowController.shared.open(for: reminder, store: store) }
                     )
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
