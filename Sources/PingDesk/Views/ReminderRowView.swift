@@ -35,20 +35,27 @@ struct ReminderRowView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture { onEdit() }
-        .contextMenu {
+            Button { onDelete() } label: {
+                Image(systemName: "trash")
+                    .font(.callout.weight(.medium))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.red.opacity(0.12))
+                    .foregroundStyle(.red)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+            .buttonStyle(.plain)
+
             Button { onEdit() } label: {
-                Label("Edit", systemImage: "pencil")
+                Image(systemName: "pencil")
+                    .font(.callout.weight(.medium))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.primary.opacity(0.08))
+                    .foregroundStyle(.primary.opacity(0.7))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
             }
-            Divider()
-            Button(role: .destructive) { onDelete() } label: {
-                Label("Delete", systemImage: "trash")
-            }
+            .buttonStyle(.plain)
         }
     }
 
