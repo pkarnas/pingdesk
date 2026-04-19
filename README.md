@@ -2,24 +2,7 @@
 
 A native macOS menu bar app for scheduling recurring and one-time reminders with system notifications.
 
-```
-┌─────────────────────────────────────────────────────┐
-│  PingDesk                                       +   │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  ●━━  Daily standup                      🗑   ✏  │
-│       Daily at 9:00 AM                              │
-│  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  │
-│  ●━━  Weekly team review          🔊    🗑   ✏  │
-│       Every Friday at 2:00 PM                       │
-│  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  │
-│  ──○  Monthly report                     🗑   ✏  │
-│       Monthly on the 1st at 10:00 AM                │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│                  Quit PingDesk                      │
-└─────────────────────────────────────────────────────┘
-```
+![PingDesk screenshot](docs/screenshot.png)
 
 ## Features
 
