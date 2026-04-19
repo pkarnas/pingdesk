@@ -23,5 +23,7 @@
     <string>13.0</string>
     <key>NSUserNotificationsUsageDescription</key>
     <string>PingDesk sends notifications to remind you of scheduled events.</string>
+    <key>CFBundleIconFile</key>
+    <string>PingDesk</string>
 </dict>
 </plist>
