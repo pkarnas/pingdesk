@@ -64,7 +64,8 @@ struct MenuPopoverView: View {
                     ReminderRowView(
                         reminder: reminder,
                         onToggle: { store.toggleEnabled(reminder) },
-                        onEdit: { EditWindowController.shared.open(for: reminder, store: store) }
+                        onEdit: { EditWindowController.shared.open(for: reminder, store: store) },
+                        onDelete: { store.delete(reminder) }
                     )
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)

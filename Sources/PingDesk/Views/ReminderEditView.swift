@@ -85,10 +85,24 @@ struct ReminderEditView: View {
                 Section("Sound") {
                     SoundPickerView(selectedSound: $soundName)
                 }
+
+                if editingReminder != nil {
+                    Section {
+                        Button(role: .destructive) {
+                            deleteReminder()
+                        } label: {
+                            HStack {
+                                Spacer()
+                                Text("Delete Reminder")
+                                Spacer()
+                            }
+                        }
+                    }
+                }
             }
             .formStyle(.grouped)
         }
-        .frame(width: 360, height: 420)
+        .frame(width: 360, height: editingReminder != nil ? 480 : 420)
         .onAppear { loadFromReminder() }
     }
 
@@ -128,6 +142,12 @@ struct ReminderEditView: View {
             )
             store.add(reminder)
         }
+        onDismiss()
+    }
+
+    private func deleteReminder() {
+        guard let reminder = editingReminder else { return }
+        store.delete(reminder)
         onDismiss()
     }
 

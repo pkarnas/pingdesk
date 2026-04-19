@@ -4,6 +4,7 @@ struct ReminderRowView: View {
     let reminder: Reminder
     let onToggle: () -> Void
     let onEdit: () -> Void
+    let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: 10) {
@@ -40,6 +41,15 @@ struct ReminderRowView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture { onEdit() }
+        .contextMenu {
+            Button { onEdit() } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            Divider()
+            Button(role: .destructive) { onDelete() } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 
     private var scheduleDescription: String {
