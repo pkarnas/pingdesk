@@ -23,6 +23,7 @@ run: bundle
 	open $(APP_BUNDLE)
 
 install: bundle
+	rm -rf /Applications/$(APP_NAME).app
 	cp -R $(APP_BUNDLE) /Applications/$(APP_NAME).app
 
 clean:
