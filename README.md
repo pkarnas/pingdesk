@@ -6,12 +6,12 @@ A native macOS menu bar app for scheduling recurring and one-time reminders with
 
 ## Features
 
-- Lives in the menu bar — no Dock icon, always accessible
+- Lives in the menu bar - no Dock icon, always accessible
 - Recurring reminders: daily, weekly (specific weekday), monthly (specific day)
 - One-time reminders at a specific date and time
 - Custom system sounds per reminder (Ping, Glass, Hero, and more)
 - Data persisted locally in `~/Library/Application Support/PingDesk/reminders.json`
-- No external dependencies — pure Swift + SwiftUI
+- No external dependencies - pure Swift + SwiftUI
 
 ## Requirements
 
@@ -55,4 +55,4 @@ Sources/PingDesk/
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT - see [LICENSE](LICENSE)
