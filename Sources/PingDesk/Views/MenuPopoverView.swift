@@ -59,7 +59,7 @@ struct MenuPopoverView: View {
 
     private var reminderList: some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
+            VStack(spacing: 0) {
                 ForEach(store.reminders) { reminder in
                     ReminderRowView(
                         reminder: reminder,
@@ -75,10 +75,9 @@ struct MenuPopoverView: View {
                             .padding(.leading, 12)
                     }
                 }
-                .onDelete { offsets in
-                    store.delete(at: offsets)
-                }
             }
         }
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxHeight: 300)
     }
 }
