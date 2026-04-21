@@ -6,41 +6,44 @@ struct NotificationBannerView: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 44, height: 44)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Text(message)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(4)
-            }
-
-            Spacer()
-        }
-        .padding(12)
-        .frame(width: 344)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(alignment: .topTrailing) {
+        HStack(spacing: 0) {
             Button {
                 onDismiss()
             } label: {
                 Image(systemName: "xmark")
-                    .font(.caption2.weight(.bold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(.secondary)
-                    .padding(6)
+                    .frame(width: 48)
+                    .frame(maxHeight: .infinity)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .padding(4)
+
+            Divider()
+                .padding(.vertical, 8)
+
+            HStack(spacing: 12) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text(message)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(4)
+                }
+
+                Spacer()
+            }
+            .padding(12)
         }
-        .contentShape(Rectangle())
-        .onTapGesture { onDismiss() }
+        .frame(width: 370)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

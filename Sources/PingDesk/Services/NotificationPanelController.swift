@@ -7,7 +7,7 @@ final class NotificationPanelController {
     private var panels: [UUID: NSPanel] = [:]
     private var panelOrder: [UUID] = []
 
-    private let panelWidth: CGFloat = 344
+    private let panelWidth: CGFloat = 370
     private let panelHeight: CGFloat = 88
     private let margin: CGFloat = 16
     private let spacing: CGFloat = 8
@@ -19,9 +19,13 @@ final class NotificationPanelController {
             dismiss(id: id, postNotification: false)
         }
 
-        let banner = NotificationBannerView(title: title, message: message) { [weak self] in
-            self?.dismiss(id: id, postNotification: true)
-        }
+        let banner = NotificationBannerView(
+            title: title,
+            message: message,
+            onDismiss: { [weak self] in
+                self?.dismiss(id: id, postNotification: true)
+            }
+        )
         let hosting = NSHostingView(rootView: banner)
 
         let panel = NSPanel(
@@ -30,12 +34,13 @@ final class NotificationPanelController {
             backing: .buffered,
             defer: false
         )
-        panel.level = .floating
+        panel.level = .normal
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = true
         panel.isMovableByWindowBackground = false
         panel.isReleasedWhenClosed = false
+        panel.hidesOnDeactivate = false
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
@@ -43,13 +48,12 @@ final class NotificationPanelController {
 
         // Size to fit the SwiftUI content
         let fittingSize = hosting.fittingSize
-        let finalHeight = max(fittingSize.height, panelHeight)
-        panel.setContentSize(NSSize(width: panelWidth, height: finalHeight))
+        panel.setContentSize(NSSize(width: panelWidth, height: fittingSize.height))
 
         panels[id] = panel
         panelOrder.append(id)
 
-        let position = positionForIndex(panelOrder.count - 1, height: finalHeight)
+        let position = positionForIndex(panelOrder.count - 1, height: fittingSize.height)
         panel.setFrameOrigin(position)
         panel.orderFront(nil)
 
