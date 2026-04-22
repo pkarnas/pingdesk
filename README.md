@@ -34,6 +34,13 @@ Or run directly without installing:
 make run
 ```
 
+## Uninstall
+
+```bash
+make uninstall   # removes the app, keeps your reminders
+make purge       # removes the app and all stored data
+```
+
 ## Project Structure
 
 ```

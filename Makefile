@@ -5,7 +5,7 @@ CONTENTS_DIR = $(APP_BUNDLE)/Contents
 MACOS_DIR = $(CONTENTS_DIR)/MacOS
 RESOURCES_DIR = $(CONTENTS_DIR)/Resources
 
-.PHONY: build bundle run install clean
+.PHONY: build bundle run install uninstall purge clean
 
 build:
 	swift build -c release
@@ -25,6 +25,13 @@ run: bundle
 install: bundle
 	rm -rf /Applications/$(APP_NAME).app
 	cp -R $(APP_BUNDLE) /Applications/$(APP_NAME).app
+
+uninstall:
+	pkill -x $(APP_NAME) 2>/dev/null || true
+	rm -rf /Applications/$(APP_NAME).app
+
+purge: uninstall
+	rm -rf ~/Library/Application\ Support/$(APP_NAME)
 
 clean:
 	swift package clean
