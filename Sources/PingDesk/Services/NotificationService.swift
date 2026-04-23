@@ -9,9 +9,54 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
     private var timers: [UUID: Timer] = [:]
 
+    private struct ScheduledEntry {
+        let title: String
+        let soundName: String?
+        let fireDate: Date
+        let recurring: Bool
+        let schedule: Schedule?
+    }
+
+    private var scheduledEntries: [UUID: ScheduledEntry] = [:]
+
     private override init() {
         super.init()
         UNUserNotificationCenter.current().delegate = self
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(handleWake),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
+        )
+    }
+
+    @objc private func handleWake() {
+        let now = Date()
+        for (id, entry) in scheduledEntries {
+            timers[id]?.invalidate()
+            timers.removeValue(forKey: id)
+
+            if entry.fireDate <= now {
+                DispatchQueue.main.async {
+                    NotificationPanelController.shared.show(
+                        id: id,
+                        title: "PingDesk",
+                        message: entry.title,
+                        soundName: entry.soundName
+                    )
+                }
+                if entry.recurring, let schedule = entry.schedule,
+                   case .recurring(let frequency, let weekday, let dayOfMonth, let time) = schedule,
+                   let nextFire = nextFireDate(frequency: frequency, weekday: weekday, dayOfMonth: dayOfMonth, time: time) {
+                    scheduleTimer(id: id, title: entry.title, soundName: entry.soundName, fireDate: nextFire, recurring: true, schedule: schedule)
+                } else {
+                    scheduledEntries.removeValue(forKey: id)
+                    NotificationCenter.default.post(name: NotificationService.oneTimeFiredNotification, object: id)
+                }
+            } else {
+                scheduleTimer(id: id, title: entry.title, soundName: entry.soundName, fireDate: entry.fireDate, recurring: entry.recurring, schedule: entry.schedule)
+            }
+        }
     }
 
     func requestAuthorization() {
@@ -34,17 +79,21 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     func cancel(id: UUID) {
         timers[id]?.invalidate()
         timers.removeValue(forKey: id)
+        scheduledEntries.removeValue(forKey: id)
     }
 
     func cancelAll() {
         timers.values.forEach { $0.invalidate() }
         timers.removeAll()
+        scheduledEntries.removeAll()
     }
 
     // MARK: - Timer scheduling
 
     private func scheduleTimer(id: UUID, title: String, soundName: String?, fireDate: Date, recurring: Bool = false, schedule: Schedule? = nil) {
         guard fireDate.timeIntervalSinceNow > 0 else { return }
+
+        scheduledEntries[id] = ScheduledEntry(title: title, soundName: soundName, fireDate: fireDate, recurring: recurring, schedule: schedule)
 
         let timer = Timer(fire: fireDate, interval: 0, repeats: false) { [weak self] _ in
             DispatchQueue.main.async {
