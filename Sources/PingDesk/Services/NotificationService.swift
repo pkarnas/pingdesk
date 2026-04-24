@@ -22,6 +22,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     private override init() {
         super.init()
         UNUserNotificationCenter.current().delegate = self
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         NSWorkspace.shared.notificationCenter.addObserver(
             self,
             selector: #selector(handleWake),
