@@ -92,6 +92,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     // MARK: - Timer scheduling
 
     private func scheduleTimer(id: UUID, title: String, soundName: String?, fireDate: Date, recurring: Bool = false, schedule: Schedule? = nil) {
+        scheduledEntries.removeValue(forKey: id)
         guard fireDate.timeIntervalSinceNow > 0 else { return }
 
         scheduledEntries[id] = ScheduledEntry(title: title, soundName: soundName, fireDate: fireDate, recurring: recurring, schedule: schedule)
@@ -127,15 +128,15 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
         switch frequency {
         case .daily:
-            guard let next = calendar.nextDate(after: now.addingTimeInterval(-1), matching: components, matchingPolicy: .nextTime) else { return nil }
+            guard let next = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) else { return nil }
             return next
         case .weekly:
             components.weekday = weekday
-            guard let next = calendar.nextDate(after: now.addingTimeInterval(-1), matching: components, matchingPolicy: .nextTime) else { return nil }
+            guard let next = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) else { return nil }
             return next
         case .monthly:
             components.day = dayOfMonth
-            guard let next = calendar.nextDate(after: now.addingTimeInterval(-1), matching: components, matchingPolicy: .nextTime) else { return nil }
+            guard let next = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) else { return nil }
             return next
         }
     }
