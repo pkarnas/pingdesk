@@ -2,25 +2,25 @@ import Foundation
 
 enum Frequency: String, Codable, CaseIterable {
     case daily
-    case weekly
+    case selectedDays
     case monthly
 }
 
 enum Schedule: Codable, Hashable {
-    case recurring(frequency: Frequency, weekday: Int?, dayOfMonth: Int?, time: DateComponents)
+    case recurring(frequency: Frequency, weekdays: [Int], dayOfMonth: Int?, time: DateComponents)
     case oneTime(date: Date)
 
     private enum CodingKeys: String, CodingKey {
-        case type, frequency, weekday, dayOfMonth, time, date
+        case type, frequency, weekdays, dayOfMonth, time, date
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case .recurring(let frequency, let weekday, let dayOfMonth, let time):
+        case .recurring(let frequency, let weekdays, let dayOfMonth, let time):
             try container.encode("recurring", forKey: .type)
             try container.encode(frequency, forKey: .frequency)
-            try container.encodeIfPresent(weekday, forKey: .weekday)
+            try container.encode(weekdays, forKey: .weekdays)
             try container.encodeIfPresent(dayOfMonth, forKey: .dayOfMonth)
             try container.encode(time, forKey: .time)
         case .oneTime(let date):
@@ -35,10 +35,10 @@ enum Schedule: Codable, Hashable {
         switch type {
         case "recurring":
             let frequency = try container.decode(Frequency.self, forKey: .frequency)
-            let weekday = try container.decodeIfPresent(Int.self, forKey: .weekday)
+            let weekdays = try container.decodeIfPresent([Int].self, forKey: .weekdays) ?? []
             let dayOfMonth = try container.decodeIfPresent(Int.self, forKey: .dayOfMonth)
             let time = try container.decode(DateComponents.self, forKey: .time)
-            self = .recurring(frequency: frequency, weekday: weekday, dayOfMonth: dayOfMonth, time: time)
+            self = .recurring(frequency: frequency, weekdays: weekdays, dayOfMonth: dayOfMonth, time: time)
         case "oneTime":
             let date = try container.decode(Date.self, forKey: .date)
             self = .oneTime(date: date)

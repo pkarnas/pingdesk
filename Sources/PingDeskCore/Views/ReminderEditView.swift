@@ -9,7 +9,7 @@ struct ReminderEditView: View {
     @State private var title: String = ""
     @State private var scheduleType: ScheduleType = .recurring
     @State private var frequency: Frequency = .daily
-    @State private var weekday: Int = 2
+    @State private var weekdays: Set<Int> = [2]
     @State private var dayOfMonth: Int = 1
     @State private var time: Date = defaultTime()
     @State private var oneTimeDate: Date = Date().addingTimeInterval(3600)
@@ -34,7 +34,7 @@ struct ReminderEditView: View {
                     .font(.headline)
                 Spacer()
                 Button("Save") { save() }
-                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(isSaveDisabled)
             }
             .padding()
 
@@ -45,7 +45,7 @@ struct ReminderEditView: View {
                     TextField("Reminder message", text: $title, axis: .vertical)
                         .labelsHidden()
                         .lineLimit(3, reservesSpace: true)
-                        .onChange(of: title) { newValue in
+                        .onChange(of: title) { _, newValue in
                             if newValue.count > 100 {
                                 title = String(newValue.prefix(100))
                             }
@@ -70,16 +70,12 @@ struct ReminderEditView: View {
                     if scheduleType == .recurring {
                         Picker("Frequency", selection: $frequency) {
                             Text("Daily").tag(Frequency.daily)
-                            Text("Weekly").tag(Frequency.weekly)
+                            Text("Selected Days").tag(Frequency.selectedDays)
                             Text("Monthly").tag(Frequency.monthly)
                         }
 
-                        if frequency == .weekly {
-                            Picker("Weekday", selection: $weekday) {
-                                ForEach(1...7, id: \.self) { day in
-                                    Text(Calendar.current.weekdaySymbols[day - 1]).tag(day)
-                                }
-                            }
+                        if frequency == .selectedDays {
+                            weekdayPicker
                         }
 
                         if frequency == .monthly {
@@ -120,15 +116,45 @@ struct ReminderEditView: View {
         .onAppear { loadFromReminder() }
     }
 
+    private var isSaveDisabled: Bool {
+        title.trimmingCharacters(in: .whitespaces).isEmpty ||
+        (frequency == .selectedDays && scheduleType == .recurring && weekdays.isEmpty)
+    }
+
+    private var weekdayPicker: some View {
+        let symbols = Calendar.current.veryShortWeekdaySymbols
+        return HStack(spacing: 6) {
+            ForEach(1...7, id: \.self) { wd in
+                let selected = weekdays.contains(wd)
+                Button {
+                    if selected {
+                        weekdays.remove(wd)
+                    } else {
+                        weekdays.insert(wd)
+                    }
+                } label: {
+                    Text(symbols[wd - 1])
+                        .font(.caption.weight(.semibold))
+                        .frame(width: 30, height: 30)
+                        .background(selected ? Color.accentColor : Color.primary.opacity(0.08))
+                        .foregroundStyle(selected ? Color.white : Color.primary)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     private func loadFromReminder() {
         guard let reminder = editingReminder else { return }
         title = reminder.title
         soundName = reminder.soundName
         switch reminder.schedule {
-        case .recurring(let freq, let wd, let dom, let t):
+        case .recurring(let freq, let wds, let dom, let t):
             scheduleType = .recurring
             frequency = freq
-            weekday = wd ?? 2
+            weekdays = wds.isEmpty ? [2] : Set(wds)
             dayOfMonth = dom ?? 1
             var components = DateComponents()
             components.hour = t.hour ?? 9
@@ -176,7 +202,7 @@ struct ReminderEditView: View {
             timeComponents.minute = minute
             return .recurring(
                 frequency: frequency,
-                weekday: frequency == .weekly ? weekday : nil,
+                weekdays: frequency == .selectedDays ? Array(weekdays).sorted() : [],
                 dayOfMonth: frequency == .monthly ? dayOfMonth : nil,
                 time: timeComponents
             )

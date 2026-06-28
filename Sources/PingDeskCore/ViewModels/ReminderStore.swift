@@ -1,12 +1,21 @@
 import Foundation
 import Combine
 
-final class ReminderStore: ObservableObject {
+package final class ReminderStore: ObservableObject {
     @Published var reminders: [Reminder] = []
 
     private var cancellables = Set<AnyCancellable>()
+    let fileURL: URL
 
-    init() {
+    package init(fileURL: URL? = nil) {
+        if let url = fileURL {
+            self.fileURL = url
+        } else {
+            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let dir = appSupport.appendingPathComponent("PingDesk", isDirectory: true)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            self.fileURL = dir.appendingPathComponent("reminders.json")
+        }
         load()
         scheduleAll()
         observeOneTimeFired()
@@ -75,13 +84,6 @@ final class ReminderStore: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-    }
-
-    private var fileURL: URL {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("PingDesk", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("reminders.json")
     }
 
     private func save() {

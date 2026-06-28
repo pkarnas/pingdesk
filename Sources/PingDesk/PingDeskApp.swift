@@ -1,4 +1,5 @@
 import SwiftUI
+import PingDeskCore
 
 @main
 struct PingDeskApp: App {

@@ -2,8 +2,8 @@ import AppKit
 import Foundation
 import UserNotifications
 
-final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
-    static let shared = NotificationService()
+package final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
+    package static let shared = NotificationService()
 
     static let oneTimeFiredNotification = Notification.Name("PingDeskOneTimeFired")
 
@@ -47,8 +47,8 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
                     )
                 }
                 if entry.recurring, let schedule = entry.schedule,
-                   case .recurring(let frequency, let weekday, let dayOfMonth, let time) = schedule,
-                   let nextFire = nextFireDate(frequency: frequency, weekday: weekday, dayOfMonth: dayOfMonth, time: time) {
+                   case .recurring(let frequency, let weekdays, let dayOfMonth, let time) = schedule,
+                   let nextFire = nextFireDate(frequency: frequency, weekdays: weekdays, dayOfMonth: dayOfMonth, time: time) {
                     scheduleTimer(id: id, title: entry.title, soundName: entry.soundName, fireDate: nextFire, recurring: true, schedule: schedule)
                 } else {
                     scheduledEntries.removeValue(forKey: id)
@@ -60,7 +60,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
-    func requestAuthorization() {
+    package func requestAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
     }
 
@@ -70,8 +70,8 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         switch reminder.schedule {
         case .oneTime(let date):
             scheduleTimer(id: reminder.id, title: reminder.title, soundName: reminder.soundName, fireDate: date)
-        case .recurring(let frequency, let weekday, let dayOfMonth, let time):
-            if let nextFire = nextFireDate(frequency: frequency, weekday: weekday, dayOfMonth: dayOfMonth, time: time) {
+        case .recurring(let frequency, let weekdays, let dayOfMonth, let time):
+            if let nextFire = nextFireDate(frequency: frequency, weekdays: weekdays, dayOfMonth: dayOfMonth, time: time) {
                 scheduleTimer(id: reminder.id, title: reminder.title, soundName: reminder.soundName, fireDate: nextFire, recurring: true, schedule: reminder.schedule)
             }
         }
@@ -107,10 +107,9 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
                 )
             }
 
-            // For recurring reminders, schedule the next occurrence
             if recurring, let schedule = schedule,
-               case .recurring(let frequency, let weekday, let dayOfMonth, let time) = schedule,
-               let nextFire = self?.nextFireDate(frequency: frequency, weekday: weekday, dayOfMonth: dayOfMonth, time: time) {
+               case .recurring(let frequency, let weekdays, let dayOfMonth, let time) = schedule,
+               let nextFire = self?.nextFireDate(frequency: frequency, weekdays: weekdays, dayOfMonth: dayOfMonth, time: time) {
                 self?.scheduleTimer(id: id, title: title, soundName: soundName, fireDate: nextFire, recurring: true, schedule: schedule)
             }
         }
@@ -118,7 +117,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         timers[id] = timer
     }
 
-    private func nextFireDate(frequency: Frequency, weekday: Int?, dayOfMonth: Int?, time: DateComponents) -> Date? {
+    func nextFireDate(frequency: Frequency, weekdays: [Int], dayOfMonth: Int?, time: DateComponents) -> Date? {
         let calendar = Calendar.current
         let now = Date()
 
@@ -130,10 +129,13 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         case .daily:
             guard let next = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) else { return nil }
             return next
-        case .weekly:
-            components.weekday = weekday
-            guard let next = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) else { return nil }
-            return next
+        case .selectedDays:
+            let candidates = weekdays.compactMap { wd -> Date? in
+                var c = components
+                c.weekday = wd
+                return calendar.nextDate(after: now, matching: c, matchingPolicy: .nextTime)
+            }
+            return candidates.min()
         case .monthly:
             components.day = dayOfMonth
             guard let next = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) else { return nil }
@@ -143,7 +145,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
     // MARK: - UNUserNotificationCenterDelegate
 
-    func userNotificationCenter(
+    package func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
@@ -158,7 +160,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         completionHandler()
     }
 
-    func userNotificationCenter(
+    package func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void

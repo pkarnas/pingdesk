@@ -61,14 +61,14 @@ struct ReminderRowView: View {
 
     private var scheduleDescription: String {
         switch reminder.schedule {
-        case .recurring(let frequency, let weekday, let dayOfMonth, let time):
+        case .recurring(let frequency, let weekdays, let dayOfMonth, let time):
             let timeStr = formatTime(time)
             switch frequency {
             case .daily:
                 return "Daily at \(timeStr)"
-            case .weekly:
-                let dayName = weekday.flatMap { weekdayName($0) } ?? "?"
-                return "Every \(dayName) at \(timeStr)"
+            case .selectedDays:
+                let dayNames = weekdays.sorted().map { shortWeekdayName($0) }.joined(separator: ", ")
+                return "\(dayNames) at \(timeStr)"
             case .monthly:
                 let day = dayOfMonth.map { ordinal($0) } ?? "?"
                 return "Monthly on the \(day) at \(timeStr)"
@@ -91,8 +91,8 @@ struct ReminderRowView: View {
         return formatter.string(from: date)
     }
 
-    private func weekdayName(_ weekday: Int) -> String {
-        let symbols = Calendar.current.weekdaySymbols
+    private func shortWeekdayName(_ weekday: Int) -> String {
+        let symbols = Calendar.current.shortWeekdaySymbols
         guard weekday >= 1 && weekday <= 7 else { return "" }
         return symbols[weekday - 1]
     }

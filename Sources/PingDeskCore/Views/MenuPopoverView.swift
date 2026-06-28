@@ -1,9 +1,11 @@
 import SwiftUI
 
-struct MenuPopoverView: View {
+package struct MenuPopoverView: View {
     @EnvironmentObject private var store: ReminderStore
 
-    var body: some View {
+    package init() {}
+
+    package var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Text("PingDesk")
